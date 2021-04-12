@@ -5,6 +5,7 @@
 	let sampleRate
 	let binCount;
 
+
 	const setup = async () => {
 		analyser = audioCtx.createAnalyser();
 		analyser.fftSize = 	8192;
@@ -52,7 +53,7 @@
 			analyser.getByteFrequencyData(fftData);
 			analyser.getFloatTimeDomainData(waveformData);
 			fftData = fftData;
-			waveformData = waveformData;  // -1 to 1
+			waveformData = waveformData;
 			freqPoints = [...fftData].map(freqPointToXY).join(" ");
 			wavPoints = [...waveformData].map(wavPointToXY).join(" ");
 

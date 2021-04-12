@@ -6,6 +6,10 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
+import {wasm} from "@rollup/plugin-wasm";
+// import rust from "@wasm-tool/rollup-plugin-rust";
+import rust from "rollup-plugin-rust";
+import multiInput from "rollup-plugin-multi-input";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -31,12 +35,13 @@ function serve() {
 }
 
 export default {
-	input: 'src/main.ts',
+	input: 'src/main.js',
 	output: {
-		sourcemap: true,
+		// sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		file: 'public/build/bundle.js',
+		// dir: 'public/build'
 	},
 	plugins: [
 		svelte({
@@ -46,9 +51,18 @@ export default {
 				dev: !production
 			}
 		}),
+		// to run web assembly:
+		rust({ export: "module" }),
+		wasm({
+			sync: ["./src/audio-utils"]
+		}),
+		// multiInput(),
+
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
 		css({ output: 'bundle.css' }),
+
+
 
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
@@ -57,12 +71,14 @@ export default {
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
 		resolve({
 			browser: true,
-			dedupe: ['svelte']
+			dedupe: ['svelte'],
+			extensions: [".wasm", ".rs", ".toml", ".mjs", ".js", ".json", ".node"],
 		}),
-		commonjs(),
+		// commonjs(),
 		typescript({
 			sourceMap: !production,
-			inlineSources: !production
+			inlineSources: !production,
+			module: "es2020",
 		}),
 
 		// In dev mode, call `npm run start` once
